@@ -1,13 +1,16 @@
 package com.example.ProductService.services;
 
 import com.example.ProductService.dtos.FakeStoreProductDto;
+import com.example.ProductService.expections.NotFoundException;
 import com.example.ProductService.models.Category;
 import com.example.ProductService.models.Product;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class FakeStoreProductService implements ProductService{
@@ -19,15 +22,27 @@ public class FakeStoreProductService implements ProductService{
     }
 
     @Override
-    public Product getProduct(Long productId) {
+    public Product getProduct(Long productId) throws NotFoundException {
         ResponseEntity<FakeStoreProductDto> responseEntity = restTemplate.getForEntity("https://fakestoreapi.com/products/" + productId,
                 FakeStoreProductDto.class);
+        if(responseEntity.getBody() == null){
+            throw new NotFoundException("ProductId " + productId + " does not exists !!");
+        }
         return fakeStoreProductDtoToProduct(responseEntity.getBody());
     }
 
     @Override
     public List<Product> getProducts() {
-        return List.of();
+        ResponseEntity<FakeStoreProductDto[]> responseEntity = restTemplate.getForEntity("https://fakestoreapi.com/products",
+                FakeStoreProductDto[].class);
+        List<FakeStoreProductDto> fakeStoreProductDtoList = List.of(responseEntity.getBody());
+
+        List<Product> productList = new ArrayList<>();
+
+        for(FakeStoreProductDto fakeStoreProductDto: fakeStoreProductDtoList) {
+            productList.add(fakeStoreProductDtoToProduct(fakeStoreProductDto));
+        }
+        return productList;
     }
 
     @Override
@@ -40,7 +55,7 @@ public class FakeStoreProductService implements ProductService{
         return null;
     }
 
-    private Product fakeStoreProductDtoToProduct(FakeStoreProductDto fakeStoreProductDto){
+    private Product fakeStoreProductDtoToProduct(FakeStoreProductDto fakeStoreProductDto)  {
         if(fakeStoreProductDto == null){
             return null;
         }
