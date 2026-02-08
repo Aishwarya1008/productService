@@ -8,6 +8,6 @@ import java.util.List;
 public interface ProductService {
     public Product getProduct(Long productId) throws NotFoundException;
     public List<Product> getProducts();
-    public Product createProduct(Product product);
+    public Product createProduct(Product product) throws NotFoundException;
     public Product replaceProduct(Long productId, Product product);
 }

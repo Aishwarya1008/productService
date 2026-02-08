@@ -3,6 +3,7 @@ package com.example.ProductService.controllers;
 import com.example.ProductService.expections.NotFoundException;
 import com.example.ProductService.models.Product;
 import com.example.ProductService.services.ProductService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +18,7 @@ public class ProductController {
 
     private ProductService productService;
 
-    public ProductController(ProductService productService){
+    public ProductController(@Qualifier("realProductService") ProductService productService){
         this.productService = productService;
     }
 
@@ -36,8 +37,8 @@ public class ProductController {
     }
 
     @PostMapping("")
-    public Product createProduct(@RequestBody Product product){
-        return null;
+    public Product createProduct(@RequestBody Product product) throws NotFoundException {
+        return productService.createProduct(product);
     }
 
     @PutMapping("/{id}")
